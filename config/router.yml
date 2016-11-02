@@ -1,0 +1,9 @@
+home:
+  pattern:    ~^/home$~i
+  controller: StatsApp\Controller\DefaultController
+  method:     indexAction
+
+home1:
+  pattern:    ~^/test/\d~i
+  controller: StatsApp\Controller\DefaultController
+  method:     indexAction

@@ -1,0 +1,21 @@
+{
+  "name": "ikoene/symfony-micro",
+  "license": "MIT",
+  "type": "project",
+  "description": "Symfony3.0 Micro Trait application",
+  "autoload": {
+    "psr-4": {
+      "Core\\": "core/",
+      "": "src/"
+    }
+  },
+  "require": {
+    "symfony/http-foundation": "~3.1",
+    "symfony/yaml": "~3.1",
+    "twig/twig": "~1.0"
+  },
+  "require-dev": {
+  },
+  "config": {
+  }
+}

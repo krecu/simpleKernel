@@ -1,0 +1,6 @@
+vendor
+cache
+*.iml
+*.ipr
+*.iws
+composer.lock
