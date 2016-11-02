@@ -6,7 +6,7 @@ namespace Core;
  * Class Controller
  * @package Core
  */
-class Controller {
+abstract class Controller {
 
     /** @var  View */
     public $_view;
