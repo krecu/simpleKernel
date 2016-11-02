@@ -1,8 +1,8 @@
 {
-  "name": "ikoene/symfony-micro",
+  "name": "krecu/govnoCMS",
   "license": "MIT",
   "type": "project",
-  "description": "Symfony3.0 Micro Trait application",
+  "description": "ABRA KADABRA",
   "autoload": {
     "psr-4": {
       "Core\\": "core/",
