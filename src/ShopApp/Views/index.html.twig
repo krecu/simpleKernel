@@ -1,0 +1,166 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+
+    <script>
+
+        /**
+         * Simple user proto
+         * @constructor
+         */
+        function User() {
+            this.user = {
+                geo: {},
+                screen: {},
+                browser: {},
+                os: {}
+            };
+        }
+
+        /**
+         * Get browser user info
+         */
+        User.prototype.getBrowser = function(){
+            /** thanks http://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser **/
+            var ua= navigator.userAgent, tem,
+                    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+            if(/trident/i.test(M[1])){
+                tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+                return 'IE '+(tem[1] || '');
+            }
+            if(M[1]=== 'Chrome'){
+                tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+                if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+            }
+            M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+            if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+
+            this.user.browser = {
+                name: M[0],
+                version: M[1]
+            }
+        };
+
+        /**
+         * Get screen resolution
+         */
+        User.prototype.getScreen = function(){
+            this.user.screen = {
+                height: window.screen.availHeight,
+                width: window.screen.availWidth
+            };
+        };
+
+        /**
+         * Get OS
+         */
+        User.prototype.getOS = function(){
+            var
+                    app = navigator.userAgent,
+                    name = "other";
+
+            if (app.indexOf('Windows') != -1) {
+                name = "Windows";
+            } else if (app.indexOf('Mac OS') != -1) {
+                name = "Mac OS";
+            } else if (app.indexOf('Linux') != -1) {
+                name = "Linux";
+            }
+
+            this.user.os = name;
+        };
+
+        /**
+         * Save user data and get GEO
+         */
+        User.prototype.Save = function() {
+            var self = this;
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position){
+                    self.user.geo = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+
+                    self.getScreen();
+                    self.getBrowser();
+                    self.getOS();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/stats/save",
+                        dataType: 'json',
+                        data: JSON.stringify(self.user),
+                        success: function (data) {
+                        }
+                    });
+                });
+            }
+
+            else {
+                console.log("Geo not supported");
+            }
+        };
+
+        var user = new User();
+        user.Save();
+
+
+        jQuery(document).ready(function($){
+            $("a.geoModal").click(function(){
+
+                $('#geoModal').modal();
+
+                var map = new ymaps.Map("map", {
+                    center: [$(this).data('latitude'), $(this).data('longitude')],
+                    zoom: 7
+                });
+                map.geoObjects.add(new ymaps.Placemark([$(this).data('latitude'), $(this).data('longitude')]));
+                return false;
+            });
+        });
+
+    </script>
+
+
+    <h1>Stats</h1>
+
+    <table class="table stats">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>OS</th>
+                <th>Screen</th>
+                <th>Browser</th>
+                <th>GEO</th>
+            </tr>
+        </thead>
+        {% for value in data %}
+        <tr>
+            <td>{{ value['time']|date('d/m/Y : h:i:s') }}</td>
+            <td>{{ value['os'] }}</td>
+            <td>{{ value['screen']['width'] }} X {{ value['screen']['height'] }}</td>
+            <td>{{ value['browser']['name'] }}/{{ value['browser']['version'] }}</td>
+            <td><a href="#modal" class="geoModal" data-latitude="{{ value['geo']['latitude'] }}" data-longitude="{{ value['geo']['longitude'] }}">{{ value['geo']['latitude'] }} : {{ value['geo']['longitude'] }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="geoModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">User GEO position</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="map" style="width: 600px; height: 400px"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
