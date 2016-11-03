@@ -6,9 +6,10 @@ use \Symfony\Component\HttpFoundation\Request as Request;
 use \Symfony\Component\HttpFoundation\Response as Response;
 use \Core\Routing as Routing;
 use \Core\View as View;
+use \Core\DB as DB;
 
 /**
- * Основной класс загрузчик
+ * Simple micro kernel implementation
  *
  * Class Kernel
  */
@@ -20,33 +21,34 @@ class Kernel {
     /** @var View */
     private $_view;
 
+    /** @var DB */
+    private $_db;
+
     /**
-     * Инициализируем наше микро ядро
-     * - Инициализируем конфиг роутов
-     * - Инициализируем подключение к БД
+     * Init kernel
      */
     public function init(){
         $this->_routing = new Routing();
         $this->_view = new View();
+        $this->_db = DB::conn();
     }
 
 
     /**
-     * Как то гдето я встречал реализацию типа MVC подход организации роутов
-     * так что не долго думая на нем и решил собрать
+     * Execute request
      *
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function handle(Request $request){
 
         /*
-         * Берем наш query и считаем что он состоит из имени контролера и имени метода
+         * Get request string
          */
         $query = $request->server->get('REQUEST_URI');
 
         /*
-         * Пробуем найти конфиг по текущему роуту
+         * load route config
          */
         $route = $this->_routing->getRoute($query);
 
@@ -56,22 +58,21 @@ class Kernel {
             $method     = $route['method'];
 
             /*
-             * проверяем есть ли в нашем приложении контроллер
-             * и есть ли в контроллере наш метод
-             * ну и собственно отдаем респонсе
+             * If controller and method exist then render template
              */
             if (class_exists($controller) && method_exists($controller, $method)) {
 
                 /*
-                 * Инициализируем движок шаблонизатора для текущего контролера
-                 * нам нужен патч c шаблонами что бы их инициализировать
+                 * get template path and init Twig
                  */
                 $reflector = new ReflectionClass($controller);
                 $file = $reflector->getFileName();
                 $this->_view->init(dirname($file) .'/../');
 
-
-                $instance = (new $controller($this->_view));
+                /*
+                 * create instance controller end return rendered Response
+                 */
+                $instance = (new $controller($this->_view, $this->_db));
                 return $instance->$method($request);
             }
         }

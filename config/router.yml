@@ -1,9 +1,19 @@
 home:
   pattern:    ~^/home$~i
   controller: StatsApp\Controller\DefaultController
-  method:     indexAction
+  method:     homeAction
+
+stats.get:
+  pattern:    ~^/stats$~i
+  controller: StatsApp\Controller\DefaultController
+  method:     homeAction
+
+stats.post:
+  pattern:    ~^/stats/save$~i
+  controller: StatsApp\Controller\DefaultController
+  method:     saveAction
 
 home1:
-  pattern:    ~^/test/\d~i
+  pattern:    ~^/test/\d$~i
   controller: StatsApp\Controller\DefaultController
   method:     indexAction

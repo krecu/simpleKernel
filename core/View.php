@@ -8,15 +8,12 @@ namespace Core;
 class View
 {
 
-    /*
-     * На самом деле что бы было уж сосвем хорошо
-     * можно сдедать некий интерфейс TemplateEngine
-     * и некую фабрику что бы можно было выбирать на каком движке рендерить шаблоны
-     */
     /** @var  \Twig_Environment */
     public $_engine;
 
     /**
+     * Render template
+     *
      * @param $view
      * @param array $data
      * @return mixed
@@ -31,7 +28,7 @@ class View
     }
 
     /**
-     * Инициализация движка темплейта
+     * Init engine for module
      * @param $path
      */
     public function init($path){

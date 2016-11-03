@@ -12,11 +12,7 @@ use Symfony\Component\Yaml\Yaml as Yaml;
 class Routing
 {
 
-    /**
-     * Простой массив из YAML ../config/routing.yml
-     *
-     * @var array
-     */
+    /** @var mixed  */
     private $_routes;
 
     /**
@@ -28,19 +24,19 @@ class Routing
         $conf = __DIR__ . '/../config/router.yml';
 
         /**
-         * Загружаем настройки роутинга
+         * Load routing from yml
          */
         if (file_exists($conf)) {
             $this->_routes = Yaml::parse(file_get_contents($conf));
         }
 
         else {
-            throw new \Exception("Файл настроек роутинга не найден");
+            throw new \Exception("Route config not exists");
         }
     }
 
     /**
-     * По текущему URI получаем настройку роута
+     * Get route config by uri
      *
      * @param $uri
      * @return null
@@ -48,10 +44,6 @@ class Routing
     public function getRoute($uri) {
 
         foreach ($this->_routes as $key => $route) {
-
-            /*
-             * Наш роутинг основан на регулярках, так быстро и удобно
-             */
             if (preg_match($route['pattern'], $uri)) {
                 return $route;
             }
