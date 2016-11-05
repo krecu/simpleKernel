@@ -1,7 +1,7 @@
 home:
-  pattern:    ~^/home$~i
+  pattern:    ~^/$~i
   controller: StatsApp\Controller\DefaultController
-  method:     homeAction
+  method:     indexAction
 
 stats.get:
   pattern:    ~^/stats$~i

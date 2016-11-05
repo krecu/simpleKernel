@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace Core\Database;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -12,12 +12,15 @@ class DB
     /** @var null|\PDO  */
     private static $_conn = null;
 
+    /** @var null */
+    private static $_instance = null;
+
     /**
      * DB constructor.
      * @throws \Exception
      */
     private function __construct() {
-        $conf = __DIR__ . '/../config/db.yml';
+        $conf = __DIR__ . '/../../config/db.yml';
 
         /**
          * Load config and connect
@@ -39,26 +42,40 @@ class DB
      *
      * @return DB|\PDO
      */
-    public static function conn() {
-        if (self::$_conn === null) {
-            self::$_conn = new self;
+    public static function init() {
+
+        if (self::$_instance === null) {
+            self::$_instance = new self;
         }
-        return self::$_conn;
+
+        return self::$_instance;
     }
 
     /**
-     * Execute query
-     *
      * @param $sql
-     * @return \PDOStatement
-     * @throws \Exception
+     * @return array
      */
     public static function query($sql) {
-        if (self::$_conn !== null) {
-            return self::$_conn->query($sql);
-        } else {
-            throw new \Exception("DB die");
+
+        $pdo =  self::$_conn;
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+
+        $rows = [];
+        while($row = $stmt->fetch($pdo::FETCH_ASSOC)) {
+            $rows[] = $row;
         }
+        return $rows;
+    }
+
+    public static function insert($sql) {
+
+        $pdo =  self::$_conn;
+        $pdo->setAttribute( $pdo::ATTR_ERRMODE, $pdo::ERRMODE_WARNING );
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+
+        return $pdo->lastInsertId();
     }
 
 

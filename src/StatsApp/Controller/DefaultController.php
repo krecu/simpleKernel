@@ -3,6 +3,7 @@
 namespace StatsApp\Controller;
 
 use Core\Controller;
+use Core\Database\Manager;
 use StatsApp\Model\StatsModel;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DefaultController extends Controller {
 
+
+    public function indexAction(Request $request){
+        return new Response($this->container->get('view')->render('index.html.twig'));
+    }
+
     /**
      * Home controller
      *
@@ -22,42 +28,33 @@ class DefaultController extends Controller {
      */
     public function homeAction(Request $request){
 
-        return new Response($this->_view->render('index.html.twig', [
-            'data' => [
-                    [
-                        'time' => time(),
-                        'os' => 'Mac OS',
-                        'browser' => [
-                            'name' => 'Chrome',
-                            'version' => '54'
-                        ],
-                        'geo' => [
-                            'latitude' => '55.7497002',
-                            'longitude' => '37.8771951'
-                        ],
-                        'screen' => [
-                            'height' => '1010',
-                            'width' => '1920'
-                        ],
-                    ],
-                [
-                    'time' => time(),
-                    'os' => 'Mac OS',
-                    'browser' => [
-                        'name' => 'Chrome',
-                        'version' => '54'
-                    ],
-                    'geo' => [
-                        'latitude' => '51.7497002',
-                        'longitude' => '37.8771951'
-                    ],
-                    'screen' => [
-                        'height' => '1010',
-                        'width' => '1920'
-                    ],
-                ]
-            ]
-        ]));
+        /** @var Manager $em */
+        $em = $this->container->get('manager');
+        $statsRepo = $em->getRepository('StatsApp\\Repository\\StatsRepository');
+
+        $data = [];
+        /** @var StatsModel[] $items */
+        $items = $statsRepo->findAll();
+        foreach ($items as $item) {
+            $data[] = [
+                'time' => $item->getCreated(),
+                'os' => $item->getOs(),
+                'browser' => [
+                    'name' => $item->getBrowserName(),
+                    'version' => $item->getBrowserVersion()
+                ],
+                'geo' => [
+                    'latitude' => $item->getLatitude(),
+                    'longitude' => $item->getLongitude()
+                ],
+                'screen' => [
+                    'height' => $item->getScreenHeight(),
+                    'width' => $item->getScreenWidth()
+                ],
+            ];
+        }
+
+        return new Response($this->container->get('view')->render('stats.html.twig', ['data' => $data]));
     }
 
     /**
@@ -67,6 +64,7 @@ class DefaultController extends Controller {
      * @return JsonResponse
      */
     public function saveAction(Request $request){
+
         $data = json_decode($request->getContent(), 1);
 
         $stats = new StatsModel();
@@ -74,13 +72,18 @@ class DefaultController extends Controller {
             ->setBrowserName($data['browser']['name'])
             ->setBrowserVersion($data['browser']['version'])
             ->setScreenWidth($data['screen']['width'])
-            ->setScreenWidth($data['screen']['height'])
+            ->setScreenHeight($data['screen']['height'])
             ->setLatitude($data['geo']['latitude'])
             ->setLongitude($data['geo']['longitude'])
             ->setOs($data['os'])
-            ->setTime(time());
+            ->setCreated(time());
 
-//        $this->_db->query();
+        /** @var Manager $em */
+        $em = $this->container->get('manager');
+        $statsRepo = $em->getRepository('StatsApp\\Repository\\StatsRepository');
+
+        // save
+        $statsRepo->save($stats);
 
         return new JsonResponse($data);
     }

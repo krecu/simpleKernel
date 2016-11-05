@@ -5,34 +5,50 @@ namespace Core;
 use Symfony\Component\Yaml\Yaml as Yaml;
 
 /**
- * Имплементация роутинга
+ * Implementation simple routing
  *
  * Class routing
  */
 class Routing
 {
 
-    /** @var mixed  */
-    private $_routes;
+    /** @var array  */
+    private static $_config = [];
+
+    /** @var null */
+    private static $_instance = null;
+
 
     /**
      * Routing constructor.
      * @throws \Exception
      */
-    public function __construct ()
-    {
+    private function __construct() {
         $conf = __DIR__ . '/../config/router.yml';
 
         /**
          * Load routing from yml
          */
         if (file_exists($conf)) {
-            $this->_routes = Yaml::parse(file_get_contents($conf));
+            self::$_config = Yaml::parse(file_get_contents($conf));
         }
 
         else {
             throw new \Exception("Route config not exists");
         }
+    }
+
+
+    /**
+     * Init routing config
+     *
+     * @throws \Exception
+     */
+    public static function init(){
+        if (self::$_instance === null) {
+            self::$_instance = new self;
+        }
+        return self::$_instance;
     }
 
     /**
@@ -41,9 +57,9 @@ class Routing
      * @param $uri
      * @return null
      */
-    public function getRoute($uri) {
+    public static function getRoute($uri) {
 
-        foreach ($this->_routes as $key => $route) {
+        foreach (self::$_config as $key => $route) {
             if (preg_match($route['pattern'], $uri)) {
                 return $route;
             }

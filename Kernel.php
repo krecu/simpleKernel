@@ -4,9 +4,12 @@ include_once 'vendor/autoload.php';
 
 use \Symfony\Component\HttpFoundation\Request as Request;
 use \Symfony\Component\HttpFoundation\Response as Response;
+
+use \Core\View\View as View;
+use \Core\Database\DB as DB;
+
 use \Core\Routing as Routing;
-use \Core\View as View;
-use \Core\DB as DB;
+use \Core\Container as Container;
 
 /**
  * Simple micro kernel implementation
@@ -15,22 +18,20 @@ use \Core\DB as DB;
  */
 class Kernel {
 
-    /** @var Routing */
-    private $_routing;
-
-    /** @var View */
-    private $_view;
-
-    /** @var DB */
-    private $_db;
+    /** @var Container */
+    private $_container;
 
     /**
      * Init kernel
      */
     public function init(){
-        $this->_routing = new Routing();
-        $this->_view = new View();
-        $this->_db = DB::conn();
+
+        /*
+         * Init container and set services
+         */
+        $this->_container = (new Container())
+            ->set('db', DB::init())
+            ->set('routing', Routing::init());
     }
 
 
@@ -47,10 +48,10 @@ class Kernel {
          */
         $query = $request->server->get('REQUEST_URI');
 
-        /*
-         * load route config
-         */
-        $route = $this->_routing->getRoute($query);
+        /** @var Routing $routing */
+        $routing = $this->_container->get('routing');
+
+        $route = $routing::getRoute($query);
 
         if (!empty($route)) {
 
@@ -63,16 +64,25 @@ class Kernel {
             if (class_exists($controller) && method_exists($controller, $method)) {
 
                 /*
-                 * get template path and init Twig
+                 * get template path and init View Engine
                  */
                 $reflector = new ReflectionClass($controller);
                 $file = $reflector->getFileName();
-                $this->_view->init(dirname($file) .'/../');
+
+                $view = View::init(new \Core\View\Engine\TwigEngine(dirname($file) .'/../Views'));
+
+                $this->_container->set('view', $view);
+
+                /*
+                 * Init repo manager
+                 */
+                $manager = new \Core\Database\Manager($this->_container->get('db'));
+                $this->_container->set('manager', $manager);
 
                 /*
                  * create instance controller end return rendered Response
                  */
-                $instance = (new $controller($this->_view, $this->_db));
+                $instance = (new $controller($this->_container));
                 return $instance->$method($request);
             }
         }

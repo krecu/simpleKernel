@@ -1,6 +1,7 @@
 <?php
 
 namespace Core;
+use Core\Container;
 
 /**
  * Class Controller
@@ -8,21 +9,16 @@ namespace Core;
  */
 abstract class Controller {
 
-    /** @var View */
-    public $_view;
-
-    /** @var DB */
-    public $_db;
+    /** @var Container */
+    public $container;
 
     /**
      * Controller constructor.
-     * @param $_view
-     * @param $_db
+     * @param $container
      */
-    public function __construct($_view, $_db)
+    public function __construct($container)
     {
-        $this->_view = $_view;
-        $this->_db = $_db;
+        $this->container = $container;
     }
 
 

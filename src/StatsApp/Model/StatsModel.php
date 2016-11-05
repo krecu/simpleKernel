@@ -2,13 +2,30 @@
 
 namespace StatsApp\Model;
 
+/*
+CREATE TABLE `test1`.`stats` (
+  `id` INT NOT NULL,
+  `created` INT NULL,
+  `os` VARCHAR(255) NULL,
+  `browser_name` VARCHAR(255) NULL,
+  `browser_version` VARCHAR(255) NULL,
+  `latitude` DOUBLE NULL,
+  `longitude` DOUBLE NULL,
+  `screen_height` INT NULL,
+  `screen_width` INT NULL,
+  PRIMARY KEY (`id`));
+*/
+
 /**
  * Class StatsModel
  */
 class StatsModel {
 
-    /** @var datetime */
-    private $time;
+    /** @var  id */
+    private $id;
+
+    /** @var timestamp */
+    private $created;
 
     /** @var string */
     private $os;
@@ -31,21 +48,42 @@ class StatsModel {
     /** @var integer */
     private $screen_width;
 
+
     /**
-     * @return datetime
+     * @return integer
      */
-    public function getTime()
+    public function getId()
     {
-        return $this->time;
+        return $this->id;
     }
 
     /**
-     * @param $time
+     * @param $id
      * @return $this
      */
-    public function setTime($time)
+    public function setId($id)
     {
-        $this->time = $time;
+        $this->id = $id;
+
+        return $this;
+    }
+
+
+    /**
+     * @return datetime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param $created
+     * @return $this
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
 
         return $this;
     }
