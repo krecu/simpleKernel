@@ -8,4 +8,4 @@
 # Tests #
 
 * Test 1 - go to localhost:8000
-* Test 2 - go to localhost:8000/catalog
+* Test 2 - go to localhost:8000/catalog (login/pass test/111)
