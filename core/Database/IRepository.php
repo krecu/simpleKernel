@@ -41,6 +41,14 @@ interface IRepository {
     public function findBy($params);
 
     /**
+     * Find first entity by params
+     *
+     * @param $params
+     * @return mixed
+     */
+    public function findOneBy($params);
+
+    /**
      * Find all entity by params
      *
      * @return mixed

@@ -13,7 +13,27 @@ stats.post:
   controller: StatsApp\Controller\DefaultController
   method:     saveAction
 
-home1:
-  pattern:    ~^/test/\d$~i
-  controller: StatsApp\Controller\DefaultController
-  method:     indexAction
+login.page:
+  pattern:    ~^/login$~i
+  controller: ShopApp\Controller\DefaultController
+  method:     loginAction
+
+logout.page:
+  pattern:    ~^/logout$~i
+  controller: ShopApp\Controller\DefaultController
+  method:     logoutAction
+
+profile.page:
+  pattern:    ~^/profile$~i
+  controller: ShopApp\Controller\DefaultController
+  method:     profileAction
+
+catalog.page:
+  pattern:    ~^/catalog$~i
+  controller: ShopApp\Controller\DefaultController
+  method:     catalogAction
+
+cart.page:
+  pattern:    ~^/cart$~i
+  controller: ShopApp\Controller\DefaultController
+  method:     cartAction

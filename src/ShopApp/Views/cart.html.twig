@@ -1,0 +1,32 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h1>Cart</h1>
+    <table class="table stats">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Count</th>
+            <th>Price</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% for product in cart['details'] %}
+            <tr>
+                <td>{{ product['title'] }}</td>
+                <td>{{ product['count'] }}</td>
+                <td>{{ product['price']|number_format(2, '.', ',') }}</td>
+                <td>
+                    <form action="/cart" method="POST">
+                        <button name="product" value="{{ product['id'] }}">remove</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+    <p>
+        total: {{ cart['summary']['summ']|number_format(2, '.', ',') }}
+    </p>
+{% endblock %}
